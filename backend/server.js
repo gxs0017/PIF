@@ -5,10 +5,10 @@ const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcrypt');
 const serve = require('koa-static');
 const path = require('path');
-
 const app = new Koa();
 const router = new Router();
 const prisma = new PrismaClient();
+
 
 app.use(bodyParser());
 
