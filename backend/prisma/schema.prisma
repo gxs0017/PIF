@@ -16,9 +16,10 @@ model User {
   updatedAt DateTime @updatedAt
 }
 
+
 enum Role {
   USER
   INV_USER
-  ADMIN
+  TEAM
   SUPERADMIN
 }

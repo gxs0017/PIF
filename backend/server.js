@@ -1,22 +1,28 @@
+require('dotenv').config(); // Import dotenv to read variables from .env file
 const Koa = require('koa');
 const Router = require('@koa/router');
 const bodyParser = require('koa-bodyparser');
-const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcrypt');
-const serve = require('koa-static');
+const fs = require('fs');
 const path = require('path');
-const app = new Koa();
-const router = new Router();
-const prisma = new PrismaClient();
 
-
-app.use(bodyParser());
-
-// Define routes
-router.get('/', async (ctx) => {
-  ctx.body = 'Hello, world!';
+const { PrismaClient } = require('@prisma/client');
+const { hashPassword } = require('./passwordUtils'); // Correct import of hashPassword function
+const prisma = new PrismaClient({
+  datasources: {
+    db: {
+      url: process.env.DATABASE_URL, // Use the DATABASE_URL from .env file
+    },
+  },
 });
 
+const app = new Koa();
+const router = new Router();
+
+// Middleware to parse request body
+app.use(bodyParser());
+
+// Login route with authentication and role check middleware
 router.post('/login', async (ctx) => {
   const { email, password } = ctx.request.body;
   if (!email || !password) {
@@ -33,42 +39,49 @@ router.post('/login', async (ctx) => {
   }
   
   const isPasswordValid = await bcrypt.compare(password, user.password);
-  if (isPasswordValid) {
-    ctx.body = { message: 'Login successful', role: user.role };
-  } else {
+  if (!isPasswordValid) {
     ctx.status = 401;
     ctx.body = { message: 'Invalid email or password' };
+    return;
   }
-});
 
-router.post('/signup', async (ctx) => {
-  const { email, password, role } = ctx.request.body;
-  const hashedPassword = await hashPassword(password);
-  const user = await prisma.user.create({
-    data: {
-      email,
-      password: hashedPassword,
-      role: role || 'USER'
+  // Respond with user information
+  ctx.body = {
+    message: 'Login successful',
+    user: {
+      email: user.email,
+      role: user.role
     }
-  });
-  ctx.body = user;
+  };
 });
 
 // Serve static files from the frontend folder
-app.use(serve(path.join(__dirname, '../frontend')));
+app.use(async (ctx, next) => {
+  if (ctx.path === '/admin-panel') {
+    // Read the Superadmin-panel.js file
+    const superadminPanelFilePath = path.join(__dirname, 'Superadmin-panel.js');
+    const superadminPanelContent = fs.readFileSync(superadminPanelFilePath, 'utf8');
 
-// Use router middleware
-app.use(router.routes());
-app.use(router.allowedMethods());
+    // Render the Superadmin-panel.js component and send it as HTML
+    ctx.type = 'text/html';
+    ctx.body = `
+      <html>
+        <head>
+          <title>Admin Panel</title>
+        </head>
+        <body>
+          <div id="root"></div>
+          <script>${superadminPanelContent}</script>
+        </body>
+      </html>
+    `;
+  } else {
+    await next();
+  }
+});
 
 // Start the server
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
-
-async function hashPassword(password) {
-  const saltRounds = 10;
-  const hashedPassword = await bcrypt.hash(password, saltRounds);
-  return hashedPassword;
-}

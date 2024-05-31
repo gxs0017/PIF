@@ -1,17 +1,16 @@
-require('dotenv').config();
 const { PrismaClient } = require('@prisma/client');
+const { hashPassword } = require('./passwordUtils'); // Correct import of hashPassword function
 const prisma = new PrismaClient();
 
 async function main() {
   try {
-    console.log('DATABASE_URL:', process.env.DATABASE_URL); // Add this line to debug
-
-    // Create a new user with the SUPERADMIN role
+    // Create a new user with the specified email, password, and role
+    const hashedPassword = await hashPassword('qwerty123'); // Hash the password
     await prisma.user.create({
       data: {
-        email: 'superadmin@example.com',
-        password: 'superadminpassword',
-        role: 'SUPERADMIN',
+        email: 'jaisharma20@gmail.com',
+        password: hashedPassword,
+        role: 'SUPERADMIN', // Set the role to Superadmin
       },
     });
     console.log('Superadmin user created successfully.');
