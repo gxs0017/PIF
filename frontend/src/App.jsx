@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom'; // Remove Navigate from here
+import { BrowserRouter as Router, Route, Routes, Link, Navigate } from 'react-router-dom'; // Import Navigate
 import axios from 'axios'; // Import Axios for making HTTP requests
 
 function App() {
@@ -8,6 +8,8 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginComponent />} />
+        <Route path="/admin-panel" element={<AdminPanel />} /> {/* Add route for admin panel */}
+        <Route path="/profile" element={<Profile />} /> {/* Add route for user profile */}
       </Routes>
     </Router>
   );
@@ -31,28 +33,32 @@ function LoginComponent() {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [error, setError] = React.useState(null);
+  const [redirect, setRedirect] = React.useState(null); // State to handle redirection
 
   // Function to handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     try {
       // Send a POST request to the login endpoint
-      const response = await axios.post('/login', { email, password });
+      const response = await axios.post('http://localhost:3000/login', { email, password });
       console.log(response.data); // Log the response data
-  
+
       // Redirect to the appropriate page based on the user role
       if (response.data.user.role === 'ADMIN') {
-        return <Navigate to="/admin-panel" />; // This line will now use Navigate from react-router-dom
+        setRedirect('/admin-panel');
       } else {
-        return <Navigate to="/profile" />; // This line will now use Navigate from react-router-dom
+        setRedirect('/profile');
       }
     } catch (error) {
       // Handle login error
-      setError(error.response.data.message);
+      setError(error.response ? error.response.data.message : 'Login failed');
     }
   };
-  
+
+  if (redirect) {
+    return <Navigate to={redirect} />; // Redirect based on user role
+  }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
@@ -94,6 +100,24 @@ function LoginComponent() {
           Login
         </button>
       </form>
+    </div>
+  );
+}
+
+function AdminPanel() {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+      <h1 className="text-3xl font-bold mb-4">Admin Panel</h1>
+      {/* Your admin panel content */}
+    </div>
+  );
+}
+
+function Profile() {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+      <h1 className="text-3xl font-bold mb-4">User Profile</h1>
+      {/* Your user profile content */}
     </div>
   );
 }

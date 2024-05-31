@@ -5,9 +5,11 @@ const bodyParser = require('koa-bodyparser');
 const bcrypt = require('bcrypt');
 const fs = require('fs');
 const path = require('path');
-
+const serve = require('koa-static');
+const cors = require('@koa/cors'); // Import the CORS middleware
 const { PrismaClient } = require('@prisma/client');
 const { hashPassword } = require('./passwordUtils'); // Correct import of hashPassword function
+
 const prisma = new PrismaClient({
   datasources: {
     db: {
@@ -18,6 +20,9 @@ const prisma = new PrismaClient({
 
 const app = new Koa();
 const router = new Router();
+
+// Enable CORS for all routes
+app.use(cors());
 
 // Middleware to parse request body
 app.use(bodyParser());
@@ -30,14 +35,14 @@ router.post('/login', async (ctx) => {
     ctx.body = { message: 'Email and password are required' };
     return;
   }
-  
+
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) {
     ctx.status = 401;
     ctx.body = { message: 'Invalid email or password' };
     return;
   }
-  
+
   const isPasswordValid = await bcrypt.compare(password, user.password);
   if (!isPasswordValid) {
     ctx.status = 401;
@@ -55,30 +60,39 @@ router.post('/login', async (ctx) => {
   };
 });
 
-// Serve static files from the frontend folder
-app.use(async (ctx, next) => {
-  if (ctx.path === '/admin-panel') {
-    // Read the Superadmin-panel.js file
-    const superadminPanelFilePath = path.join(__dirname, 'Superadmin-panel.js');
-    const superadminPanelContent = fs.readFileSync(superadminPanelFilePath, 'utf8');
+// Serve static files from the public directory
+app.use(serve(path.join(__dirname, 'public')));
 
-    // Render the Superadmin-panel.js component and send it as HTML
-    ctx.type = 'text/html';
-    ctx.body = `
-      <html>
-        <head>
-          <title>Admin Panel</title>
-        </head>
-        <body>
-          <div id="root"></div>
-          <script>${superadminPanelContent}</script>
-        </body>
-      </html>
-    `;
-  } else {
-    await next();
+// Serve the admin panel page
+router.get('/admin-panel', async (ctx) => {
+  const superadminPanelFilePath = path.join(__dirname, 'public', 'Superadmin-panel.js');
+
+  // Check if the file exists
+  if (!fs.existsSync(superadminPanelFilePath)) {
+    ctx.status = 404;
+    ctx.body = 'Superadmin-panel.js file not found';
+    return;
   }
+
+  const superadminPanelContent = fs.readFileSync(superadminPanelFilePath, 'utf8');
+
+  ctx.type = 'text/html';
+  ctx.body = `
+    <html>
+      <head>
+        <title>Admin Panel</title>
+      </head>
+      <body>
+        <div id="root"></div>
+        <script src="/Superadmin-panel.js"></script>
+      </body>
+    </html>
+  `;
 });
+
+// Add the router middleware to the app
+app.use(router.routes());
+app.use(router.allowedMethods());
 
 // Start the server
 const port = process.env.PORT || 3000;
