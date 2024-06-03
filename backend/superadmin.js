@@ -1,4 +1,4 @@
-require('dotenv').config({ path: './.env' }); // Explicitly specifying the path
+require('dotenv').config({ path: './.env' }); // Make sure .env file is in the same directory or adjust the path accordingly
 console.log('DATABASE_URL:', process.env.DATABASE_URL); // Verify the environment variable
 
 const { PrismaClient } = require('@prisma/client');
@@ -11,7 +11,7 @@ async function main() {
     const hashedPassword = await hashPassword('qwerty123'); // Hash the password
     await prisma.user.create({
       data: {
-        email: 'jaisharma20@gmail.com',
+        email: 'jaisharma@gmail.com',
         password: hashedPassword,
         role: 'SUPERADMIN', // Set the role to Superadmin
       },

@@ -1,3 +1,4 @@
+require('dotenv').config(); // Load environment variables from .env file
 const { PrismaClient } = require('@prisma/client');
 
 async function deleteData() {
