@@ -1,4 +1,7 @@
-require('dotenv').config(); // Import dotenv to read variables from .env file
+// Import dotenv to read variables from .env file
+const dotenv = require('dotenv');
+dotenv.config();
+
 const Koa = require('koa');
 const Router = require('@koa/router');
 const bodyParser = require('koa-bodyparser');
@@ -10,14 +13,6 @@ const cors = require('@koa/cors'); // Import the CORS middleware
 const { PrismaClient } = require('@prisma/client');
 const { hashPassword } = require('./passwordUtils'); // Correct import of hashPassword function
 
-const prisma = new PrismaClient({
-  datasources: {
-    db: {
-      url: process.env.DATABASE_URL, // Use the DATABASE_URL from .env file
-    },
-  },
-});
-
 const app = new Koa();
 const router = new Router();
 
@@ -26,6 +21,15 @@ app.use(cors());
 
 // Middleware to parse request body
 app.use(bodyParser());
+
+// Initialize the PrismaClient
+const prisma = new PrismaClient({
+  datasources: {
+    db: {
+      url: process.env.DATABASE_URL, // Use the DATABASE_URL from .env file
+    },
+  },
+});
 
 // Login route with authentication and role check middleware
 router.post('/login', async (ctx) => {

@@ -1,3 +1,6 @@
+require('dotenv').config({ path: './.env' }); // Explicitly specifying the path
+console.log('DATABASE_URL:', process.env.DATABASE_URL); // Verify the environment variable
+
 const { PrismaClient } = require('@prisma/client');
 const { hashPassword } = require('./passwordUtils'); // Correct import of hashPassword function
 const prisma = new PrismaClient();
