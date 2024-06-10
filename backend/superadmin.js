@@ -1,21 +1,42 @@
 const { PrismaClient } = require('@prisma/client');
 const { hashPassword } = require('./passwordUtils'); // Correct import of hashPassword function
+
 const prisma = new PrismaClient();
 
 async function main() {
   try {
-    // Create a new user with the specified email, password, and role
-    const hashedPassword = await hashPassword('qwerty123'); // Hash the password
-    await prisma.user.create({
-      data: {
-        email: 'jaisharma20@gmail.com',
-        password: hashedPassword,
-        role: 'SUPERADMIN', // Set the role to Superadmin
-      },
+    // Hash the password
+    const hashedPassword = await hashPassword('qwerty123');
+
+    // Create users with different roles
+    await prisma.user.createMany({
+      data: [
+        {
+          email: 'test@gmail.com',
+          password: hashedPassword,
+          role: 'USER',
+        },
+        {
+          email: 'dealer@gmail.com',
+          password: hashedPassword,
+          role: 'DEALER',
+        },
+        {
+          email: 'team@gmail.com',
+          password: hashedPassword,
+          role: 'TEAM',
+        },
+        {
+          email: 'jaisharma@gmail.com',
+          password: hashedPassword,
+          role: 'SADMIN',
+        },
+      ],
     });
-    console.log('Superadmin user created successfully.');
+
+    console.log('Users created successfully.');
   } catch (error) {
-    console.error('Error creating superadmin user:', error);
+    console.error('Error creating users:', error);
   } finally {
     await prisma.$disconnect();
   }
