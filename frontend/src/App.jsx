@@ -1,17 +1,17 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Link, Navigate, useNavigate } from 'react-router-dom'; // Include useNavigate
 import axios from 'axios'; // Import Axios for making HTTP requests
-import withAuth from './withAuth';
+import withAuth from './components/HOC';
 
 function App() {
   return (
     <Router>
-      <Routes>
-      <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginComponent />} />
-        <Route path="/sadmin-panel" element={withAuth(SadminPanel, 'SADMIN')} /> {/* Use withAuth for SadminPanel */}
-        <Route path="/profile" element={withAuth(Profile)} /> {/* Use withAuth for Profile */}
-       </Routes>
+<Routes>
+  <Route path="/" element={<HomePage />} />
+  <Route path="/login" element={<LoginComponent />} />
+  <Route path="/sadmin-panel" element={withAuth(SadminPanel, 'SADMIN')} /> {/* Use withAuth for SadminPanel */}
+  <Route path="/profile" element={withAuth(Profile)} /> {/* Use withAuth for Profile */}
+</Routes>
     </Router>
   );
 }
