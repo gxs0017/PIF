@@ -1,20 +1,17 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes, Link, Navigate } from 'react-router-dom';
-import axios from 'axios'; 
-import Signup from './pages/Signup';
-import InvestorSignup from './pages/InvestorSignup';
+import { BrowserRouter as Router, Route, Routes, Link, Navigate, useNavigate } from 'react-router-dom'; // Include useNavigate
+import axios from 'axios'; // Import Axios for making HTTP requests
+import withAuth from './withAuth';
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<HomePage />} />
+      <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginComponent />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/signup-investor" element={<InvestorSignup />} />
-        <Route path="/admin-panel" element={<AdminPanel />} /> 
-        <Route path="/profile" element={<Profile />} /> 
-      </Routes>
+        <Route path="/sadmin-panel" element={withAuth(SadminPanel, 'SADMIN')} /> {/* Use withAuth for SadminPanel */}
+        <Route path="/profile" element={withAuth(Profile)} /> {/* Use withAuth for Profile */}
+       </Routes>
     </Router>
   );
 }
@@ -24,7 +21,9 @@ function HomePage() {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <h1 className="text-3xl font-bold mb-4">Welcome to My App</h1>
       <Link to="/login">
-        <button className="bg-blue-500 text-white px-4 py-2 rounded-full">Login</button>
+        <button className="bg-blue-500 text-white px-4 py-2 rounded-full">
+          Login
+        </button>
       </Link>
     </div>
   );
@@ -34,28 +33,29 @@ function LoginComponent() {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [error, setError] = React.useState(null);
-  const [redirect, setRedirect] = React.useState(null); 
+  const navigate = useNavigate(); // Use useNavigate for navigation
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:3000/login', { email, password });
-      console.log(response.data);
+      const response = await axios.post('/login', { email, password });
+      console.log(response.data); // Log the response data
+      const { role, token } = response.data.user;
 
-      if (response.data.user.role === 'ADMIN') {
-        setRedirect('/admin-panel');
+      // Save the token to local storage
+      localStorage.setItem('token', token);
+
+      // Redirect based on the user role
+      if (role === 'SADMIN') {
+        navigate('/sadmin-panel'); // Redirect to Sadmin panel
       } else {
-        setRedirect('/profile');
+        navigate('/profile'); // Redirect to Profile page for other users
       }
     } catch (error) {
-      setError(error.response ? error.response.data.message : 'Login failed');
+      setError(error.response.data.message);
     }
   };
-
-  if (redirect) {
-    return <Navigate to={redirect} />; 
-  }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
@@ -86,16 +86,19 @@ function LoginComponent() {
             autoComplete="current-password"
           />
         </div>
-        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-full">Login</button>
+        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-full">
+          Login
+        </button>
       </form>
     </div>
   );
 }
 
-function AdminPanel() {
+function SadminPanel() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <h1 className="text-3xl font-bold mb-4">Admin Panel</h1>
+      <h1 className="text-3xl font-bold mb-4">Sadmin Panel</h1>
+      <p>Only accessible by users with the SADMIN role.</p>
     </div>
   );
 }
@@ -103,7 +106,8 @@ function AdminPanel() {
 function Profile() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <h1 className="text-3xl font-bold mb-4">User Profile</h1>
+      <h1 className="text-3xl font-bold mb-4">Profile</h1>
+      <p>This is the profile page.</p>
     </div>
   );
 }
