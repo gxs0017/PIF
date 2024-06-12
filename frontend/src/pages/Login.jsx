@@ -1,27 +1,32 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Navigate } from 'react-router-dom'; // Import Navigate for redirection
+import { useNavigate } from 'react-router-dom';
 
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
-  const handleLogin = async () => {
+  const handleLogin = async (event) => {
+    event.preventDefault();
     try {
-      const response = await axios.post('/login', { email, password });
-      console.log(response.data); // For debugging, you can log the response
-      // If login is successful, you can redirect the user to another page
-      // For example:
-      // history.push('/dashboard');
-      if (response.data.user.role === 'ADMIN') {
-        return <Navigate to="/admin-panel" />;
+      const response = await axios.post('http://localhost:3000/login', { email, password });
+      console.log(response.data);
+      const { token, user } = response.data;
+
+      // Save token to local storage
+      localStorage.setItem('token', token);
+
+      // Redirect based on user role
+      if (user.role === 'SADMIN') {
+        navigate('/sadmin-panel');
       } else {
-        return <Navigate to="/profile" />;
+        navigate('/profile');
       }
     } catch (error) {
       console.error('Login failed:', error);
-      setError(error.response.data.message);
+      setError(error.response?.data?.message || 'Login failed');
     }
   };
 
