@@ -1,29 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { GoogleLogin } from 'react-google-login';
+import { AuthContext } from '../components/AuthContext';
 
 function Signin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
+  const { signIn } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleSignin = async (event) => {
     event.preventDefault();
     try {
-      const response = await axios.post('http://localhost:3000/login', { email, password });
-      console.log(response.data);
-      const { token, user } = response.data;
-
-      // Save token to local storage
-      localStorage.setItem('token', token);
-
-      // Redirect based on user role
-      if (user.role === 'SADMIN') {
-        navigate('/sadmin-panel');
+      const success = await signIn(email, password);
+      if (success) {
+        navigate('/'); // Redirect to home page on successful login
       } else {
-        navigate('/profile');
+        setError('Signin failed');
       }
     } catch (error) {
       console.error('Signin failed:', error);
@@ -31,18 +26,17 @@ function Signin() {
     }
   };
 
-  const responseGoogle = (response) => {
-    // Handle Google sign-in response here
-    console.log(response);
-    // Example: Send token to backend for verification
-    // const tokenId = response.tokenId;
-    // axios.post('/googlelogin', { idToken: tokenId }).then(response => {
-    //   console.log(response.data);
-    //   navigate('/profile');
-    // }).catch(error => {
-    //   console.error('Google signin failed:', error);
-    //   setError('Google signin failed');
-    // });
+
+  const responseGoogle = async (response) => {
+    try {
+      const result = await axios.post('http://localhost:3000/googlelogin', { tokenId: response.tokenId });
+      const { token, user } = result.data;
+      localStorage.setItem('token', token);
+      navigate('/'); // Redirect to home page on successful Google login
+    } catch (error) {
+      console.error('Google signin failed:', error);
+      setError('Google signin failed');
+    }
   };
 
   return (

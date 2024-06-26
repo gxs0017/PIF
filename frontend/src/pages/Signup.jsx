@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { GoogleLogin } from 'react-google-login';
+import { AuthContext } from '../components/AuthContext';
 
 function Signup() {
   const [email, setEmail] = useState('');
@@ -10,6 +11,7 @@ function Signup() {
   const [name, setName] = useState('');
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
+  const { signIn } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleSignup = async (e) => {
@@ -26,26 +28,33 @@ function Signup() {
         password,
         name,
       });
+
       setMessage(response.data.message);
       setError(null);
+
+      // Automatically sign in the user after successful signup
+      const success = await signIn(email, password);
+      if (success) {
+        navigate('/'); // Redirect to home page after successful signup
+      } else {
+        setError('Signin after signup failed');
+      }
     } catch (error) {
       setError(error.response ? error.response.data.message : 'Signup failed');
       setMessage(null);
     }
   };
 
-  const responseGoogle = (response) => {
-    // Handle Google sign-in response here
-    console.log(response);
-    // Example: Send token to backend for verification
-    // const tokenId = response.tokenId;
-    // axios.post('/googlelogin', { idToken: tokenId }).then(response => {
-    //   console.log(response.data);
-    //   navigate('/profile');
-    // }).catch(error => {
-    //   console.error('Google signin failed:', error);
-    //   setError('Google signin failed');
-    // });
+  const responseGoogle = async (response) => {
+    try {
+      const result = await axios.post('http://localhost:3000/googlelogin', { tokenId: response.tokenId });
+      const { token, user } = result.data;
+      localStorage.setItem('token', token);
+      navigate('/'); // Redirect to home page on successful Google login
+    } catch (error) {
+      console.error('Google signup failed:', error);
+      setError('Google signup failed');
+    }
   };
 
   return (

@@ -1,3 +1,5 @@
+// server.js
+
 require('dotenv').config();
 const Koa = require('koa');
 const Router = require('@koa/router');
@@ -8,9 +10,9 @@ const path = require('path');
 const serve = require('koa-static');
 const cors = require('@koa/cors');
 const { PrismaClient } = require('@prisma/client');
-const { hashPassword } = require('./passwordUtils');
 const jwt = require('koa-jwt');
 const jsonwebtoken = require('jsonwebtoken');
+const { hashPassword } = require('./passwordUtils');
 
 const prisma = new PrismaClient({
   datasources: {
@@ -20,73 +22,44 @@ const prisma = new PrismaClient({
   },
 });
 
-const app = new Koa(); // Define app here
-
+const app = new Koa();
 const router = new Router();
 
-// Enable CORS for all routes
-app.use(cors());
+// Middleware
+app.use(cors()); // Enable CORS for all routes
+app.use(bodyParser()); // Parse request body
+app.use(serve(path.join(__dirname, 'public'))); // Serve static files from 'public' directory
 
-// Middleware to parse request body
-app.use(bodyParser());
-
-router.post('/signup', async (ctx) => {
-  const { email, password } = ctx.request.body;
-
-  if (!email || !password) {
-    ctx.status = 400;
-    ctx.body = { message: 'Email and password are required' };
-    return;
-  }
-
-  const hashedPassword = await hashPassword(password);
-  await prisma.user.create({
-    data: {
-      email,
-      password: hashedPassword,
-      role: 'USER',
-    },
-  });
-
-  ctx.status = 201;
-  ctx.body = { message: 'User created successfully' };
-});
-
-// Middleware to protect routes
-const authMiddleware = jwt({ secret: process.env.JWT_SECRET });
-
-router.get('/sadmin-panel', authMiddleware, async (ctx) => {
-  // Serve the Sadmin Panel HTML file
-  ctx.type = 'text/html';
-  ctx.body = fs.createReadStream(path.join(__dirname, 'public', 'sadmin-panel.html'));
-});
-
-router.post('/login', async (ctx) => {
+// Routes
+router.post('/api/signin', async (ctx) => {
   const { email, password } = ctx.request.body;
   if (!email || !password) {
     ctx.status = 400;
     ctx.body = { message: 'Email and password are required' };
-    return;
-  }
-
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user) {
-    ctx.status = 401;
-    ctx.body = { message: 'Invalid email or password' };
-    return;
-  }
-
-  const isPasswordValid = await bcrypt.compare(password, user.password);
-  if (!isPasswordValid) {
-    ctx.status = 401;
-    ctx.body = { message: 'Invalid email or password' };
     return;
   }
 
   try {
-    const token = jsonwebtoken.sign({ email: user.email, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      ctx.status = 401;
+      ctx.body = { message: 'Invalid email or password' };
+      return;
+    }
 
-    // Respond with user information and token
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      ctx.status = 401;
+      ctx.body = { message: 'Invalid email or password' };
+      return;
+    }
+
+    const token = jsonwebtoken.sign(
+      { email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
     ctx.body = {
       message: 'Login successful',
       user: {
@@ -95,22 +68,48 @@ router.post('/login', async (ctx) => {
       },
       token,
     };
-  } catch (err) {
-    console.error('Error generating JWT:', err);
+  } catch (error) {
+    console.error('Sign In error:', error);
     ctx.status = 500;
     ctx.body = { message: 'Internal server error' };
   }
 });
 
-// Serve static files from the public directory
-app.use(serve(path.join(__dirname, 'public')));
+const authMiddleware = jwt({ secret: process.env.JWT_SECRET });
 
-// Add the router middleware to the app
+router.get('/sadmin-panel', authMiddleware, async (ctx) => {
+  ctx.type = 'text/html';
+  ctx.body = fs.createReadStream(path.join(__dirname, 'public', 'sadmin-panel.html'));
+});
+
+router.get('/current-user', authMiddleware, async (ctx) => {
+  try {
+    const token = ctx.request.headers.authorization.split(' ')[1];
+    const decoded = jsonwebtoken.verify(token, process.env.JWT_SECRET);
+    const user = await prisma.user.findUnique({
+      where: { email: decoded.email },
+    });
+
+    if (!user) {
+      ctx.status = 404;
+      ctx.body = { message: 'User not found' };
+      return;
+    }
+
+    ctx.body = { email: user.email, name: user.name };
+  } catch (error) {
+    console.error('Error retrieving current user:', error);
+    ctx.status = 500;
+    ctx.body = { message: 'Internal server error' };
+  }
+});
+
+// Router middleware
 app.use(router.routes());
 app.use(router.allowedMethods());
 
 // Start the server
-const port = process.env.PORT || 3000; // Change port to 3000
+const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });

@@ -1,66 +1,141 @@
 .logo-link {
-    font-size: 2rem; /* Adjust font size as needed */
-    font-weight: bold;
-    text-decoration: none;
-    background-image: linear-gradient(to right, #9ae5f2, #1e4e92);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    transition: background-position 0.3s ease;
+  font-size: 2rem; /* Adjust font size as needed */
+  font-weight: bold;
+  text-decoration: none;
+  background-image: linear-gradient(to right, #9ae5f2, #1e4e92);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  transition: background-position 0.3s ease;
+}
+
+.logo-link:hover {
+  background-size: 200% auto;
+  background-position: right center;
+  
+}
+
+
+
+.nav-link:hover {
+  background-size: 200% auto;
+  background-position: right center;
+  background-image: linear-gradient(to right, #9ae5f2, #1e4e92);
+  color: transparent; /* Hide text to show gradient background */
+  -webkit-background-clip: text; /* Clip text with gradient */
+  background-clip: text;
+}
+
+
+.waves {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 25%; /* Adjusted to cover the lower 25% of the header */
+  z-index: -1; /* Ensure waves are behind content */
+}
+
+.parallax > use {
+  animation: move-forever 20s linear infinite;
+}
+
+.parallax > use:nth-child(1) {
+  animation-delay: -2s;
+  animation-duration: 7s;
+}
+
+.parallax > use:nth-child(2) {
+  animation-delay: -3s;
+  animation-duration: 10s;
+}
+
+.parallax > use:nth-child(3) {
+  animation-delay: -4s;
+  animation-duration: 13s;
+}
+
+@keyframes move-forever {
+  0% {
+    transform: translate3d(-90px, 0, 0);
   }
-  
-  .logo-link:hover {
-    background-size: 200% auto;
-    background-position: right center;
-    
+  100% {
+    transform: translate3d(85px, 0, 0);
   }
-  
-  
-  
-  .nav-link:hover {
-    background-size: 200% auto;
-    background-position: right center;
-    background-image: linear-gradient(to right, #9ae5f2, #1e4e92);
-    color: transparent; /* Hide text to show gradient background */
-    -webkit-background-clip: text; /* Clip text with gradient */
-    background-clip: text;
+}
+
+ /* profile - circle under this  */
+
+ .profile-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px; /* Adjust font size as needed */
+  font-weight: bold; /* Ensure initials are bold */
+  color: black; /* Always set initials color to black */
+  position: relative; /* Required for positioning pseudo-element */
+  overflow: hidden; /* Clip overflow for particles */
+  background: linear-gradient(to right, #9ae5f2, #1e4e92); /* Gradient background */
+  cursor: pointer; /* Change cursor on hover */
+  box-shadow: 0 0 0 2px transparent; /* Ensure circle border is transparent by default */
+  transition: box-shadow 0.3s ease; /* Smooth transition for hover effect */
+  margin-bottom: 12px;
+}
+ 
+.profile-circle::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  background: linear-gradient(45deg, #fb0094, #0000ff, #00ff00, #ffff00, #ff0000);
+  background-size: 400%;
+  width: calc(100% + 4px);
+  height: calc(100% + 4px);
+  z-index: -1;
+  animation: steam 20s linear infinite;
+  border-radius: 50%;
+}
+
+.profile-circle:hover {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5); /* White shadow on hover */
+}
+
+.profile-circle:hover::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  animation: wave 1.5s infinite linear;
+}
+
+@keyframes wave {
+  0% {
+    transform: scale(1);
+    border-color:  rgb(53, 198, 255);
   }
-  
-  
-  .waves {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 25%; /* Adjusted to cover the lower 25% of the header */
-    z-index: -1; /* Ensure waves are behind content */
+  50% {
+    transform: scale(1.2);
+    border-color: rgba(255, 255, 255, 0.8);
   }
-  
-  .parallax > use {
-    animation: move-forever 20s linear infinite;
+  100% {
+    transform: scale(1);
+    border-color:  rgb(53, 198, 255);
   }
-  
-  .parallax > use:nth-child(1) {
-    animation-delay: -2s;
-    animation-duration: 7s;
+}
+
+@keyframes steam {
+  0% {
+    background-position: 0 0;
   }
-  
-  .parallax > use:nth-child(2) {
-    animation-delay: -3s;
-    animation-duration: 10s;
+  50% {
+    background-position: 400% 0;
   }
-  
-  .parallax > use:nth-child(3) {
-    animation-delay: -4s;
-    animation-duration: 13s;
+  100% {
+    background-position: 0 0;
   }
-  
-  @keyframes move-forever {
-    0% {
-      transform: translate3d(-90px, 0, 0);
-    }
-    100% {
-      transform: translate3d(85px, 0, 0);
-    }
-  }
-  
+}
