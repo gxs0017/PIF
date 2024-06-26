@@ -5,9 +5,12 @@ const config = {
     "./src/**/*.{js,ts,jsx,tsx}", // Corrected pattern for all files in src
   ],
   theme: {
-    extend: {},
-  },
+    extend: {
+      fontFamily: {
+        sans: ['Nunito', 'sans-serif'], // Override the default sans font
+      },
+    },
   plugins: [],
-};
-
+},
+}
 export default config;

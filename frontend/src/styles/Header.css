@@ -1,0 +1,66 @@
+.logo-link {
+    font-size: 2rem; /* Adjust font size as needed */
+    font-weight: bold;
+    text-decoration: none;
+    background-image: linear-gradient(to right, #9ae5f2, #1e4e92);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    transition: background-position 0.3s ease;
+  }
+  
+  .logo-link:hover {
+    background-size: 200% auto;
+    background-position: right center;
+    
+  }
+  
+  
+  
+  .nav-link:hover {
+    background-size: 200% auto;
+    background-position: right center;
+    background-image: linear-gradient(to right, #9ae5f2, #1e4e92);
+    color: transparent; /* Hide text to show gradient background */
+    -webkit-background-clip: text; /* Clip text with gradient */
+    background-clip: text;
+  }
+  
+  
+  .waves {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 25%; /* Adjusted to cover the lower 25% of the header */
+    z-index: -1; /* Ensure waves are behind content */
+  }
+  
+  .parallax > use {
+    animation: move-forever 20s linear infinite;
+  }
+  
+  .parallax > use:nth-child(1) {
+    animation-delay: -2s;
+    animation-duration: 7s;
+  }
+  
+  .parallax > use:nth-child(2) {
+    animation-delay: -3s;
+    animation-duration: 10s;
+  }
+  
+  .parallax > use:nth-child(3) {
+    animation-delay: -4s;
+    animation-duration: 13s;
+  }
+  
+  @keyframes move-forever {
+    0% {
+      transform: translate3d(-90px, 0, 0);
+    }
+    100% {
+      transform: translate3d(85px, 0, 0);
+    }
+  }
+  
