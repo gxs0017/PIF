@@ -1,5 +1,63 @@
+/* Header Styles */
+.text-center {
+  text-align: center;
+}
+
+.bg-white {
+  background-color: #fff;
+}
+
+.text-gray-800 {
+  color: #2d3748;
+}
+
+.relative {
+  position: relative;
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.h-20 {
+  height: 5rem; /* Adjust as needed */
+}
+
+.px-4 {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.z-10 {
+  z-index: 10;
+}
+
+.space-x-4 > * + * {
+  margin-left: 1rem;
+}
+
+.space-x-4 {
+  margin-left: -1rem;
+}
+
 .logo-link {
-  font-size: 2rem; /* Adjust font size as needed */
+  font-size: 2rem;
   font-weight: bold;
   text-decoration: none;
   background-image: linear-gradient(to right, #9ae5f2, #1e4e92);
@@ -12,31 +70,78 @@
 .logo-link:hover {
   background-size: 200% auto;
   background-position: right center;
-  
 }
 
-
-
-.nav-link:hover {
-  background-size: 200% auto;
-  background-position: right center;
-  background-image: linear-gradient(to right, #9ae5f2, #1e4e92);
-  color: transparent; /* Hide text to show gradient background */
-  -webkit-background-clip: text; /* Clip text with gradient */
-  background-clip: text;
+.search-bar {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  width: 35%;
+  max-width: 300px;
+  text-align: center;
 }
 
+.search-form {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  transition: width 0.4s ease-in-out;
+  width: 100%;
+  overflow: hidden;
+}
+
+.search-form.open {
+  width: 100%;
+}
+
+.search-form input[type="text"] {
+  flex-grow: 1;
+  border: none;
+  outline: none;
+  background: none;
+  padding: 8px;
+  border-radius: 20px;
+  font-size: 14px;
+  transition: box-shadow 0.3s ease;
+}
+
+.search-form button {
+  background: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.search-form input[type="text"]:focus::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(45deg, #fb0094, #0000ff, #00ff00, #ffff00, #ff0000);
+  background-size: 400%;
+  width: calc(100% + 4px);
+  height: calc(100% + 4px);
+  z-index: -1;
+  animation: steam 20s linear infinite;
+  border-radius: 20px;
+}
 
 .waves {
   position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 25%; /* Adjusted to cover the lower 25% of the header */
-  z-index: -1; /* Ensure waves are behind content */
+  height: 25%;
+  z-index: -1;
 }
 
-.parallax > use {
+.parallax {
   animation: move-forever 20s linear infinite;
 }
 
@@ -55,36 +160,24 @@
   animation-duration: 13s;
 }
 
-@keyframes move-forever {
-  0% {
-    transform: translate3d(-90px, 0, 0);
-  }
-  100% {
-    transform: translate3d(85px, 0, 0);
-  }
-}
-
- /* profile - circle under this  */
-
- .profile-circle {
+.profile-circle {
   width: 40px;
   height: 40px;
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 18px; /* Adjust font size as needed */
-  font-weight: bold; /* Ensure initials are bold */
-  color: black; /* Always set initials color to black */
-  position: relative; /* Required for positioning pseudo-element */
-  overflow: hidden; /* Clip overflow for particles */
-  background: linear-gradient(to right, #9ae5f2, #1e4e92); /* Gradient background */
-  cursor: pointer; /* Change cursor on hover */
-  box-shadow: 0 0 0 2px transparent; /* Ensure circle border is transparent by default */
-  transition: box-shadow 0.3s ease; /* Smooth transition for hover effect */
-  margin-bottom: 12px;
+  font-size: 18px;
+  font-weight: bold;
+  color: black;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(to right, #9ae5f2, #1e4e92);
+  cursor: pointer;
+  box-shadow: 0 0 0 2px transparent;
+  transition: box-shadow 0.3s ease;
 }
- 
+
 .profile-circle::before {
   content: '';
   position: absolute;
@@ -100,7 +193,7 @@
 }
 
 .profile-circle:hover {
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5); /* White shadow on hover */
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
 }
 
 .profile-circle:hover::after {
@@ -116,7 +209,7 @@
 @keyframes wave {
   0% {
     transform: scale(1);
-    border-color:  rgb(53, 198, 255);
+    border-color: rgba(255, 255, 255, 0.5);
   }
   50% {
     transform: scale(1.2);
@@ -124,7 +217,7 @@
   }
   100% {
     transform: scale(1);
-    border-color:  rgb(53, 198, 255);
+    border-color: rgba(255, 255, 255, 0.5);
   }
 }
 
@@ -139,3 +232,4 @@
     background-position: 0 0;
   }
 }
+

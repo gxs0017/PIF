@@ -1,20 +1,30 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from './AuthContext';
+import { FiSearch } from 'react-icons/fi';
 import '../styles/Header.css';
-import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { LogOut, User } from 'lucide-react';
 
 function Header() {
   const { user, signOut } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [isSearchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleSignOut = () => {
     signOut();
     navigate('/');
   };
 
-  // Function to determine background color based on initials
+  const toggleSearch = () => {
+    setSearchOpen(!isSearchOpen);
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    console.log("Search submitted:", searchQuery);
+    // Handle your search logic here (navigate, fetch results, etc.)
+  };
+
   const getCircleBackgroundColor = () => {
     const initials = user?.email[0]?.toUpperCase();
     const charCode = initials.charCodeAt(0);
@@ -31,37 +41,49 @@ function Header() {
 
   return (
     <header className="text-center bg-white text-gray-800 relative overflow-hidden">
-      <div className="flex justify-between items-center h-20 px-4 relative z-10">
-        <div className="flex items-center">
+      <div className="flex flex-wrap justify-between items-center h-20 px-4 relative z-10">
+        <div className="flex items-center space-x-4 flex-grow">
           <Link to="/" className="logo-link">
             PIF
           </Link>
         </div>
         <div className="flex items-center space-x-4">
+          <div className="search-bar">
+            <form className={`search-form ${isSearchOpen ? 'open' : ''}`} onSubmit={handleSearchSubmit}>
+              <input
+                type="text"
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <button type="submit">
+                <FiSearch />
+              </button>
+            </form>
+          </div>
+        </div>
+        <div className="flex items-center space-x-4">
           {user ? (
-            <DropdownMenu.Root>
-              <DropdownMenu.Trigger asChild>
-                <div className={`profile-circle cursor-pointer ${getCircleBackgroundColor()}`}>
-                  {user.email[0]?.toUpperCase()}
-                </div>
-              </DropdownMenu.Trigger>
-              <DropdownMenu.Content className="w-56 bg-white shadow-lg rounded-md p-2">
-                <DropdownMenu.Label className="px-2 py-1 text-sm font-medium text-gray-700">My Account</DropdownMenu.Label>
-                <DropdownMenu.Separator className="border-t border-gray-200 my-1" />
-                <DropdownMenu.Item className="px-2 py-1 flex items-center space-x-2 cursor-pointer hover:bg-gray-100">
-                  <User className="mr-2 h-4 w-4" />
-                  <span>{user.email}</span>
-                </DropdownMenu.Item>
-                <DropdownMenu.Separator className="border-t border-gray-200 my-1" />
-                <DropdownMenu.Item
-                  className="px-2 py-1 flex items-center space-x-2 cursor-pointer hover:bg-gray-100"
-                  onClick={handleSignOut}
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Sign out</span>
-                </DropdownMenu.Item>
-              </DropdownMenu.Content>
-            </DropdownMenu.Root>
+            <div className="relative">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <div className={`profile-circle ${getCircleBackgroundColor()} cursor-pointer`} onClick={handleProfileClick}>
+                    {user.email[0]}
+                  </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>
+                    <span>{user.email}</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <span>Sign out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           ) : (
             <Link to="/signin" className="nav-link">Signin</Link>
           )}
